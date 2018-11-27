@@ -1,1 +1,1 @@
-# Unity_NumberSprite
+# Unity_SpriteNumber
