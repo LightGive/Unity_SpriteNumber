@@ -14,9 +14,13 @@ public class SpriteNumber : MonoBehaviour
 	[SerializeField, Range(MinDigit, MaxDigit)]
 	private int m_maxDigit = 3;
 	[SerializeField]
-	private float m_offset = 1.0f;
+	private float m_offset = 0.5f;
+	[SerializeField]
+	private float m_spriteSize = 1.0f;
 	[SerializeField]
 	private bool m_isDisplayZero;
+	[SerializeField]
+	private TextAlignment m_defaultTextAnchor;
 
 	private SpriteRenderer[] m_spriteRenderers = new SpriteRenderer[MaxDigit];
 
@@ -31,19 +35,17 @@ public class SpriteNumber : MonoBehaviour
 		}
 	}
 
-	private void Update()
-	{
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			var ran = Random.Range(0, 99);
-			Debug.Log(ran);
-			SetNumber(ran);
-		}
-	}
 
 	public void SetNumber(int _val)
 	{
+		SetNumber(_val, m_defaultTextAnchor);
+	}
+
+	public void SetNumber(int _val, TextAlignment _alignment)
+	{
+		_val = Mathf.Clamp(_val, 0, (int)Mathf.Pow(10, m_maxDigit) - 1);
 		var digit = _val;
+		int displayCount = 0;
 
 		//要素数0には１桁目の値が格納
 		List<int> number = new List<int>();
@@ -54,13 +56,16 @@ public class SpriteNumber : MonoBehaviour
 			number.Add(_val);
 		}
 
+
+
 		//表示
 		for (int i = 0; i < m_spriteRenderers.Length; i++)
 		{
 			if (number.Count <= i && i != number.Count - 1)
 			{
-				if (m_isDisplayZero)
+				if (m_isDisplayZero || i == 0)
 				{
+					displayCount++;
 					m_spriteRenderers[i].gameObject.SetActive(true);
 					m_spriteRenderers[i].sprite = m_spriteNumbers[0];
 				}
@@ -71,9 +76,34 @@ public class SpriteNumber : MonoBehaviour
 			}
 			else
 			{
+				displayCount++;
 				m_spriteRenderers[i].gameObject.SetActive(true);
 				m_spriteRenderers[i].sprite = m_spriteNumbers[number[i]];
 			}
+		}
+
+		float alignmentOffset = 0.0f;
+
+		switch (_alignment)
+		{
+			case TextAlignment.Left:
+				alignmentOffset = (displayCount * m_spriteSize) + (-m_spriteSize * 0.5f) + (m_offset * (displayCount - 1));
+				break;
+			case TextAlignment.Center:
+				alignmentOffset = (-m_spriteSize * 0.5f) + (m_spriteSize * (displayCount - 1)) + ((m_offset * 0.5f) * (displayCount - 1));
+				break;
+			case TextAlignment.Right:
+				alignmentOffset = -m_spriteSize * 0.5f;
+				break;
+		}
+
+		//座標を変更する
+		for (int i = 0; i < m_spriteRenderers.Length; i++)
+		{
+			if (m_spriteRenderers[i] == null)
+				continue;
+
+			m_spriteRenderers[i].transform.localPosition = new Vector3((-i * (m_spriteSize)) + (-i * m_offset) + alignmentOffset, 0.0f, 0.0f);
 		}
 	}
 }

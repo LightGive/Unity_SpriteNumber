@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Example : MonoBehaviour {
+public class Example : MonoBehaviour
+{
+	[SerializeField]
+	private SpriteNumber m_spriteNumber;
+	[SerializeField]
+	private int m_testNum;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	private void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			m_spriteNumber.SetNumber(m_testNum);
+		}
 	}
 }
